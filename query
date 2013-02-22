@@ -1,0 +1,108 @@
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+-------------------------                     README                     -------------------------
+
+-- QUERY DI ESTRAZIONE ED INSERIMENTO/ELIMINAZIONE. 
+-- LE VARIABILI CON "$" SONO QUELLE DA IMPOSTARE NEL SISTEMA PER FARE LA QUERY.
+-- INSERIMENTI, CANCELLAZIONI E UPDATE NON CI SONO TUTTI MA SONO TUTTI MOLTO SIMILI,
+-- POTREBBERO MANCARE ALCUNE SELECT. NOTIFICARLO O FATELE MODIFICANDO QUELLE PRESENTI.
+-- BASTA PRENDERNE UNO E MODIFICARE I CAMPI OPPORTUNI.
+-- "CTRL-F" PER CERCARE QUELLO CHE VI SERV
+-- SONO CAMBIATI DEI NOMI DI CAMPI, CONTROLLARLI SEMPRE DALLE RISPETTIVE TABELLE PRIMA DI USARLI
+
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+
+-- Login ed estrazione dati medico
+SELECT name, surname, admin
+FROM users
+WHERE ($username=username AND $passwdSHA1 = password)
+
+-- Inserimento nuovo medico
+INSERT INTO users
+VALUES ($personal_code, $username, $name, $surname, $passwdSHA1, $admin)
+
+-- Modifica dati medico (vedete voi cosa dovete modificare e mettete apposto la query)
+UPDATE users
+SET personal_code=$val1, username=$val2, ...
+WHERE fiscal_code=$FC
+
+-- Inserimento nuovo paziente (nuova cartella clinica [MR])
+INSERT INTO medical_record
+VALUES ($fiscal_code, $doctor)
+
+-- Ricerca pazienti dato nome e cognome (e il sistema mi da anche il CF del medico)
+SELECT data_sheet.name, data_sheet.surname, data_sheet.fiscal_code
+FROM data_sheet, medical_record
+WHERE (data_sheet.fiscal_code = medical_record.fiscal_code AND $CF_doctor = doctor)
+
+-- Lista dei medici
+SELECT fiscal_code, username, name, surname, admin
+FROM users
+
+-- Estrazione cartella clinica paziente [MR]
+SELECT data_sheet.*, main_board.invalid_percentage
+FROM medical_record, main_board, data_sheet
+WHERE (data_sheet.fiscal_code = medical_record.fiscal_code AND main_board.fiscal_code = medical_record.fiscal_code AND $FC = medical_record.fiscal_code AND $CF_doctor = doctor)
+
+-- Estrazione medicine permanenti dato un paziente
+SELECT name, active_principle
+FROM patient_medicinePerm, medicine
+WHERE ($FC = patient_medicinePerm.fiscal_code AND patient_medicinePerm.medicine_name = medicine.name)
+
+-- Estrazione malattie croniche dato un paziente
+SELECT disease.*
+FROM patient_chronicDes, disease
+WHERE ($FC = patient_chronicDes.fiscal_code AND patient_chronicDes.disease_name = disease.name)
+
+-- Estrazione lista visite dato paziente
+SELECT id, exam_date
+FROM examinations
+WHERE $FC = patient
+
+-- Inserimento data_sheet
+INSERT INTO data_sheet
+VALUES ($fiscal_code, $name, $surname, $date_born, $place_born, $address, $city, $occupation, $telephone)
+
+-- Cancellazione visita
+DELETE FROM examinations
+WHERE $ID = id
+
+-- Inserimento attachment NB: QUERY DA FARE UNA DOPO L'ALTRA!!! ALTRIMENTI INCONSISTENZA DATABASE E DATO PERSO.
+
+$maxid=(SELECT max(id)
+FROM attachments)
+
+if torna NULL => $maxid=1
+
+INSERT INTO attachments
+VALUES ($maxid + 1, $name)
+
+INSERT INTO exam_attach
+VALUES ($ID_EXAMINATION_CHE_HO_DA_PRIMA, $maxid, $type)
+
+-- Inserimento di prescription c'è innanzitutto l'insert di prescription con tutti i suoi dati 
+
+$maxidAtt=(SELECT max(id)
+FROM attachments)
+
+if torna NULL => $maxidAtt=1
+
+INSERT INTO attachments
+VALUES ($maxidAtt + 1, $name)
+
+INSERT INTO exam_attach
+VALUES ($ID_EXAMINATION_CHE_HO_DA_PRIMA, $maxidAtt, $type)
+
+$maxidPresc=$maxidAtt=(SELECT max(id)
+FROM prescriptions)
+
+if torna NULL => $maxidPresc=1
+
+INSERT INTO prescriptions
+VALUES ($tutti_i_valori, ... , ...)
+
+INSERT INTO attach_presc
+VALUES ($maxidAtt, $maxidPresc)
+
+-- 
