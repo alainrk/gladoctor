@@ -281,10 +281,10 @@ CREATE TABLE IF NOT EXISTS `pharmacists` (
 --
 
 INSERT INTO `pharmacists` (`id_pharma`, `ph_name`, `address`, `city`, `mail`) VALUES
-(2, 'Federico Montori', 'via dei bo', 'Ferrara', 'federico.montori@studio.unibo.it'),
-(1, 'Alain Di Chiappari', 'via unibo', 'Bologna', 'alain.dichiappari@studio.unibo.it'),
-(3, 'Giulio Cinelli', 'via unibo', 'Borgo panigale', 'giulio.cinelli@studio.unibo.it'),
-(4, 'Stefano Di Biagio', 'via dei bo', 'Teramo', 'stefano.dibiagio2@studio.unibo.it');
+(2, 'Federico Montori', 'via dei bo', '', ''),
+(1, 'Alain Di Chiappari', 'via unibo', '', ''),
+(3, 'Giulio Cinelli', 'via unibo', '', ''),
+(4, 'Stefano Di Biagio', 'via dei bo', '', '');
 
 -- --------------------------------------------------------
 
